@@ -27,9 +27,10 @@ module "networking" {
 
 module "iam" {
   source = "./modules/iam"
+  depends_on           = [module.secretmanager]
   project              = var.project
   environment          = var.environment
-
+  secretmanager-id     = module.secretmanager.secretmanager-id
 }
 
 module "rds" {
@@ -48,7 +49,7 @@ module "rds" {
 
 module "compute" {
   source = "./modules/compute"
-  depends_on = [module.networking,module.iam,module.rds,module.alb]
+  depends_on = [module.networking,module.iam,module.rds,module.alb,module.secretmanager]
   project              = var.project
   environment          = var.environment
   region               = var.region
@@ -58,6 +59,7 @@ module "compute" {
   private_subnets_id = module.networking.private_subnets_id
   target_group_arn = module.alb.target_group_arn
   rds-endpoint =  module.rds.rds-endpoint
+  secretmanager-id     = module.secretmanager.secretmanager-id
 }
 
 module "alb" {
@@ -68,4 +70,11 @@ module "alb" {
   vpc_id               = module.networking.vpc_id
   public_subnets_id    = module.networking.public_subnets_id
   alb_sg_id            = module.networking.alb_sg_id
+}
+
+module "secretmanager" {
+  source = "./modules/secretmanager"
+  project              = var.project
+  environment          = var.environment
+  db_password          = var.db_password
 }

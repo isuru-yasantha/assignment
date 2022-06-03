@@ -20,14 +20,16 @@ resource "aws_ecs_task_definition" "aws-ecs-task" {
         "condition": "COMPLETE"
     }
 ],
+      secrets = [
+       {
+    "name": "VTT_DBPASSWORD",
+    "valueFrom": "${var.secretmanager-id}" 
+      }
+      ],
       environment = [
        {
     "name": "VTT_DBUSER",
     "value": "dbadmin"
-},
-{
-    "name": "VTT_DBPASSWORD",
-    "value": "ktAL0wqj9Ek" 
 },
 {
     "name": "VTT_DBNAME",
@@ -87,14 +89,16 @@ resource "aws_ecs_task_definition" "aws-ecs-task" {
       name = "${var.project}-${var.environment}-init-container"
       image = "${var.imageurl}"
       command = ["updatedb", "-s"]
+      secrets = [
+       {
+    "name": "VTT_DBPASSWORD",
+    "valueFrom": "${var.secretmanager-id}" 
+      }
+      ],
       environment = [
        {
     "name": "VTT_DBUSER",
     "value": "dbadmin"
-},
-{
-    "name": "VTT_DBPASSWORD",
-    "value": "ktAL0wqj9Ek" 
 },
 {
     "name": "VTT_DBNAME",

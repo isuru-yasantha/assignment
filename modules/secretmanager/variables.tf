@@ -6,6 +6,6 @@ variable "environment" {
   description = "The deployment environment"
 }
 
-variable "secretmanager-id" {
-  description = "ARN of secret manager secret"
+variable "db_password" {
+  description = "RDS root user password"
 }
