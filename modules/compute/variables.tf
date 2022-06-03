@@ -33,3 +33,7 @@ variable "imageurl" {
 variable "rds-endpoint" {
   description = "RDS endpoint address"
 }
+
+variable "secretmanager-id" {
+  description = "ARN of secret manager secret"
+}
