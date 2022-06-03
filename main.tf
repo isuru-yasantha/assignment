@@ -39,6 +39,7 @@ module "rds" {
   environment          = var.environment
   db_username          = var.db_username
   db_password          = var.db_password
+  db_name              = var.db_name
   db_instancetype      = var.db_instancetype
   db_storagesize       = var.db_storagesize
   rds_sg_id            = module.networking.rds_sg_id

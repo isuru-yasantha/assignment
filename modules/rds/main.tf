@@ -10,6 +10,7 @@ resource "aws_db_instance" "postgres_db" {
     instance_class            = var.db_instancetype
     username                  = var.db_username
     password                  = var.db_password
+    name                      = var.db_name
     db_subnet_group_name      = "${var.rds_db_subnetgroup_name}"
     vpc_security_group_ids    = ["${var.rds_sg_id}"]
     skip_final_snapshot       = true

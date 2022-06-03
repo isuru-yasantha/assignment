@@ -48,6 +48,12 @@ variable "db_username" {
   default = "dbadmin"
 }
 
+variable "db_name" {
+  description = "DB creating in the RDS instance"
+  type = string
+  default = "app"
+}
+
 variable "db_instancetype" {
   description = "RDS instace type"
   type        = string

@@ -232,7 +232,7 @@ resource "aws_security_group" "rds-sg" {
   name        = "${var.project}-rds-sg"
   description = "Security group for RDS"
   vpc_id      = aws_vpc.vpc.id
-  depends_on  = [aws_vpc.vpc,aws_security_group.ecs-sg]
+  depends_on  = [aws_vpc.vpc,aws_security_group.ecs-sg,aws_vpc.vpc,aws_security_group.service-sg]
 
   ingress {
      
@@ -240,7 +240,7 @@ resource "aws_security_group" "rds-sg" {
       to_port     = 5432 
       protocol    = "tcp"
       description = "allow db connections from ecs sg"
-      security_groups = ["${aws_security_group.ecs-sg.id}"]
+      security_groups = ["${aws_security_group.ecs-sg.id}","${aws_security_group.service-sg.id}"]
     }
   egress {
     from_port        = "0"

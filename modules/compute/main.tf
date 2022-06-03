@@ -7,13 +7,6 @@ resource "aws_cloudwatch_log_group" "log-group" {
 
 }
 
-data "template_file" "env_vars" {
-  template = "${file("${path.module}/env_vars.json")}"
-  vars = {
-    rds-endpoint = "${var.rds-endpoint}"
-  }
-}
-
 resource "aws_ecs_task_definition" "aws-ecs-task" {
   family = "${var.project}-${var.environment}-task"
   container_definitions = jsonencode([
@@ -21,6 +14,79 @@ resource "aws_ecs_task_definition" "aws-ecs-task" {
       name = "${var.project}-${var.environment}-container"
       image = "${var.imageurl}"
       command = ["serve"]
+      dependsOn = [
+    {
+        "containerName": "${var.project}-${var.environment}-init-container",
+        "condition": "COMPLETE"
+    }
+],
+      environment = [
+       {
+    "name": "VTT_DBUSER",
+    "value": "dbadmin"
+},
+{
+    "name": "VTT_DBPASSWORD",
+    "value": "ktAL0wqj9Ek" 
+},
+{
+    "name": "VTT_DBNAME",
+    "value": "app" 
+},
+{
+    "name": "VTT_DBPORT",
+    "value": "5432" 
+},
+{
+    "name": "VTT_DBHOST",
+    "value": "${var.rds-endpoint}" 
+},
+{
+    "name": "VTT_LISTENHOST",
+    "value": "0.0.0.0" 
+},
+{
+    "name": "ECS_CONTAINER_STOP_TIMEOUT"
+    "value": "10m"
+},
+{
+    "name": "VTT_LISTENPORT",
+    "value": "3000" 
+}
+      ],
+       "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "echo hello"
+        ],
+        "interval": 5,
+        "timeout": 15,
+        "retries": 2
+      },    
+      essential = true
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group = "${aws_cloudwatch_log_group.log-group.id}"
+          awslogs-region = "${var.region}"
+          awslogs-stream-prefix = "${var.project}-${var.environment}"
+        }
+      },
+       portMappings = [
+        {
+          containerPort = 3000,
+          hostPort = 3000
+        }
+      ]
+     
+      cpu = 256
+      memory = 512
+      networkMode = "awsvpc"
+    },
+    {
+      name = "${var.project}-${var.environment}-init-container"
+      image = "${var.imageurl}"
+      command = ["updatedb", "-s"]
       environment = [
        {
     "name": "VTT_DBUSER",
@@ -51,43 +117,36 @@ resource "aws_ecs_task_definition" "aws-ecs-task" {
     "value": "3000" 
 }
       ],
-      "healthCheck": {
+       "healthCheck": {
         "command": [
           "CMD-SHELL",
           "echo hello"
         ],
         "interval": 5,
-        "timeout": 5,
+        "timeout": 15,
         "retries": 2
-      }    
-      essential = true
+      },    
+      essential = false
       logConfiguration = {
         logDriver = "awslogs"
         options = {
           awslogs-group = "${aws_cloudwatch_log_group.log-group.id}"
           awslogs-region = "${var.region}"
-          awslogs-stream-prefix = "${var.project}-${var.environment}"
+          awslogs-stream-prefix = "${var.project}-${var.environment}-init"
         }
-      },
-       portMappings = [
-        {
-          containerPort = 3000
-          protocol = "tcp"
-          hostPort = 3000
-        }
-      ]
+      }
      
       cpu = 256
       memory = 512
       networkMode = "awsvpc"
-    },
+    }
  ])
 
 
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  memory                   = "512"
-  cpu                      = "256"
+  memory                   = "1024"
+  cpu                      = "512"
   execution_role_arn       = "${var.ecstaskexecution_iam_role_arn}"
   task_role_arn            = "${var.ecstaskexecution_iam_role_arn}"
 
@@ -103,7 +162,9 @@ resource "aws_ecs_service" "aws-ecs-service" {
   task_definition      = aws_ecs_task_definition.aws-ecs-task.arn
   launch_type          = "FARGATE"
   scheduling_strategy  = "REPLICA"
-  desired_count        = 1
+  desired_count        = 2
+  deployment_minimum_healthy_percent = 50
+  deployment_maximum_percent         = 200
   force_new_deployment = true
   network_configuration {
     subnets          = [element(var.private_subnets_id,0), element(var.private_subnets_id,1)]
@@ -120,7 +181,7 @@ resource "aws_ecs_service" "aws-ecs-service" {
 
 
 resource "aws_appautoscaling_target" "ecs_target" {
-  max_capacity       = 2
+  max_capacity       = 3
   min_capacity       = 1
   resource_id        = "service/${aws_ecs_cluster.aws-ecs-cluster.name}/${aws_ecs_service.aws-ecs-service.name}"
   scalable_dimension = "ecs:service:DesiredCount"

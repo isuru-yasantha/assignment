@@ -14,6 +14,10 @@ variable "db_username" {
   description = "RDS root username"
 }
 
+variable "db_name" {
+  description = "DB creating in the RDS instance"
+}
+
 variable "db_instancetype" {
   description = "RDS instace type"
 }
