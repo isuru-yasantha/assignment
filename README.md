@@ -1,4 +1,4 @@
-### Servian: Tech Challenge
+# Servian: Tech Challenge
 
 ## Solution design and deployment diagram
 
@@ -9,9 +9,9 @@
 
 ## How to run?
 
-# Prerequisites
+### Prerequisites
 
-# Steps to run
+### Steps to run
 
 
 1. Setup variables like project name, region name, availability zones, CIDR etc  correctly in terraform.tfvars file.
@@ -30,7 +30,7 @@ terraform apply
 terraform destroy
 ```
 
-# Outputs
+### Outputs
 
 This script creates 
 
@@ -44,11 +44,11 @@ This script creates
 
 ## Improvements
 
-# CI/CD Pipeline
+## CI/CD Pipeline
 
-# Enhancing security
+## Enhancing security
 
-# Monitoring, Logging and Alerts
+## Monitoring, Logging and Alerts
 
 
 
