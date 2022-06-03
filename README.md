@@ -44,11 +44,11 @@ This script creates
 
 ## Improvements
 
-## CI/CD Pipeline
+### CI/CD Pipeline
 
-## Enhancing security
+### Enhancing security
 
-## Monitoring, Logging and Alerts
+### Monitoring, Logging and Alerts
 
 
 
