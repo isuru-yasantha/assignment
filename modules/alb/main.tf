@@ -2,7 +2,7 @@ resource "aws_alb" "application_load_balancer" {
   name               = "${var.project}-${var.environment}-alb"
   internal           = false
   load_balancer_type = "application"
-  subnets            = [element(var.public_subnets_id,0), element(var.public_subnets_id,1)]
+  subnets            = var.public_subnets_id
   security_groups    = ["${var.alb_sg_id}"]
 }
 
@@ -38,14 +38,4 @@ resource "aws_lb_listener" "listener" {
      type             = "forward"
      target_group_arn = aws_lb_target_group.target_group.id
    }
-
-#  default_action {
-#    type = "redirect"
-#
-#    redirect {
-#      port        = "443"
-#      protocol    = "HTTPS"
-#      status_code = "HTTP_301"
-#    }
-#  }
 }
