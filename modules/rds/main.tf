@@ -1,3 +1,5 @@
+/* Creating RDS instance */
+
 resource "aws_db_instance" "postgres_db" {
     identifier                = "${var.project}-${var.environment}-rds"
     allocated_storage         = var.db_storagesize

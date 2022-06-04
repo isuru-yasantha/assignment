@@ -1,3 +1,5 @@
+/* IAM policy for ECS */
+
 data "aws_iam_policy_document" "ecs_iam_policy" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -9,6 +11,7 @@ data "aws_iam_policy_document" "ecs_iam_policy" {
   }
 }
 
+/* IAM policy to access AWS secret manager */
 resource "aws_iam_policy" "policy_access_secret" {
   name = "policy-access-secret"
 
@@ -24,6 +27,8 @@ resource "aws_iam_policy" "policy_access_secret" {
   })
 }
 
+/* Creating IAM Role */
+
 resource "aws_iam_role" "ecstaskexecution_iam_role" {
   name               = "ecstaskexecutionIamRole"
   assume_role_policy = data.aws_iam_policy_document.ecs_iam_policy.json
@@ -34,6 +39,8 @@ resource "aws_iam_role" "ecstaskexecution_iam_role" {
       environment = "${var.environment}"
   }
 }
+
+/* Policy attachment for the IAM role */
 
 resource "aws_iam_role_policy_attachment" "ecs_iam_role_attachment" {
   role       = "${aws_iam_role.ecstaskexecution_iam_role.name}"

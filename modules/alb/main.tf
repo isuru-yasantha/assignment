@@ -1,3 +1,5 @@
+/* Creating AWS ALB */
+
 resource "aws_alb" "application_load_balancer" {
   name               = "${var.project}-${var.environment}-alb"
   internal           = false
@@ -6,6 +8,7 @@ resource "aws_alb" "application_load_balancer" {
   security_groups    = ["${var.alb_sg_id}"]
 }
 
+/* Creating AWS ALB TG */
 
 resource "aws_lb_target_group" "target_group" {
   name        = "${var.project}-${var.environment}-tg"
@@ -28,6 +31,8 @@ resource "aws_lb_target_group" "target_group" {
     Environment = var.environment
   }
 }
+
+/* Creating HTTP listner */
 
 resource "aws_lb_listener" "listener" {
   load_balancer_arn = aws_alb.application_load_balancer.id

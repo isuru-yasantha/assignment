@@ -1,11 +1,17 @@
+/* Creating ECS cluster */
+
 resource "aws_ecs_cluster" "aws-ecs-cluster" {
   name = "${var.project}-${var.environment}-ecs-cluster"
 }
+
+/* Creating CW log group */
 
 resource "aws_cloudwatch_log_group" "log-group" {
   name = "${var.project}-${var.environment}-cw-logs"
 
 }
+
+/* ECS Task definition */
 
 resource "aws_ecs_task_definition" "aws-ecs-task" {
   family = "${var.project}-${var.environment}-task"
@@ -156,6 +162,8 @@ data "aws_ecs_task_definition" "main" {
   task_definition = aws_ecs_task_definition.aws-ecs-task.family
 }
 
+/* AWS ECS Service */
+
 resource "aws_ecs_service" "aws-ecs-service" {
   name                 = "${var.project}-${var.environment}-ecs-service"
   cluster              = aws_ecs_cluster.aws-ecs-cluster.id
@@ -172,6 +180,8 @@ resource "aws_ecs_service" "aws-ecs-service" {
     security_groups = ["${var.service_sg_id}"]
   }
 
+  /* Attaching to the TG */
+
   load_balancer {
     target_group_arn = "${var.target_group_arn}"
     container_name   = "${var.project}-${var.environment}-container"
@@ -179,6 +189,7 @@ resource "aws_ecs_service" "aws-ecs-service" {
   }
 }
 
+/* Scaling policies */
 
 resource "aws_appautoscaling_target" "ecs_target" {
   max_capacity       = 3

@@ -9,25 +9,26 @@
 - Terraform 
 - GitHub
 - AWS
--- AWS VPC
--- AWS ECS
--- AWS EC2 (ALB)
--- AWS S3
--- AWS IAM
--- AWS Secret Manager
--- AWS RDS
--- AWS CloudWatch
-
+```
+- AWS VPC
+- AWS ECS
+- AWS EC2 (ALB)
+- AWS S3
+- AWS IAM
+- AWS Secret Manager
+- AWS RDS
+- AWS CloudWatch
+```
  Above mentioned AWS services are selected to design and deploy this application considering complexity to design, implement and operational overhead. Basic security is implemented for this solution at this stage. However, there are things that we can implement for enhance security, performance and cost saving aspects which discuss under improvement section.
 
- AWS VPC -  Network segmentation and virtual network isolation. MZ and DMZ are implemented. 
- AWS ECS - ECS with fargate is low cost, less complex solution to run containerized applications without putting much effort to maintain. Compute resources are provisioned and scaling based on resource requirement which help to reduce the infrastructure cost. 
- AWS EC2 (ALB) - ALB is used to front the public traffic to the application. 
- AWS S3 - S3 is used to store and maintain Terraform state file.
- AWS IAM - IAM role is used to grant access to AWS resources and AWS services via AWS API calls.
- AWS SecretManager - Secret Manager is used to store and maintain database user password which is referred by the application.
- AWS RDS - RDS is used for HA enabled database instance (Multi AZ).
- AWS Cloudwatch - Cloudwatch is used to handling monitoring metrics, logs and alarms. 
+ - AWS VPC -  Network segmentation and virtual network isolation. MZ and DMZ are implemented. 
+ - AWS ECS - ECS with fargate is low cost, less complex solution to run containerized applications without putting much effort to - maintain. Compute resources are provisioned and scaling based on resource requirement which help to reduce the infrastructure cost. 
+ - AWS EC2 (ALB) - ALB is used to front the public traffic to the application. 
+ - AWS S3 - S3 is used to store and maintain Terraform state file.
+ - AWS IAM - IAM role is used to grant access to AWS resources and AWS services via AWS API calls.
+ - AWS SecretManager - Secret Manager is used to store and maintain database user password which is referred by the application.
+ - AWS RDS - RDS is used for HA enabled database instance (Multi AZ).
+ - AWS Cloudwatch - Cloudwatch is used to handling monitoring metrics, logs and alarms. 
 
 ## How to run?
 
@@ -36,31 +37,63 @@ Please use below mentioned steps to deploy cloud infrasture to deploy this solut
 ### Prerequisites
 
 1. Terraform (Tested version for this solution - Terraform v1.0.11)
-2. AWS IAM user keys with AWS Admin permission.
-3. AWS S3 bucket with below access policy to grant access to above mentioned IAM user.
-4. Web Brower (Tested with Google Chrome)
+2. AWS CLI 
+3. AWS IAM user(X) keys with AWS Admin permission.
+3. AWS S3 bucket with below access policy to grant access to above mentioned IAM user(X) and directory tfstate. (Ex:S3bucket). This will create using env-creation.sh script. 
+```
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "Statement1",
+			"Effect": "Allow",
+			 "Principal": {
+                "AWS": [
+                    "arn:aws:iam::ACCOUNT_ID:user/x"
+                ]},
+			"Action": "s3:ListBucket",
+			"Resource": "arn:aws:s3:::BUCKET_NAME"
+		},
+		{
+			"Effect": "Allow",
+			 "Principal": {
+                "AWS": [
+                   "arn:aws:iam::ACCOUNT_ID:user/x"
+                ]},
+			"Action": [
+				"s3:GetObject",
+				"s3:PutObject",
+				"s3:DeleteObject"
+			],
+			"Resource": "arn:aws:s3:::BUCKET_NAME/tfstate/terraform.tfstate"
+		}
+	]
+}
+```
+4. Web Browser and OS. (Tested with Google Chrome and MAC OS)
 
 ### Steps to run
 
-1. Clone the GitHub repo
+1. Clone the GitHub repo.
+2. Update the terraform.tfvars file if you need to update the default values mentioned in the terraform.tfvars file.
+```
+project               = "testapp"
+environment           = "dev"
+region                = "us-east-1"
+availability_zones    = ["us-east-1a", "us-east-1b"]
+vpc_cidr              = "10.0.0.0/16"
+public_subnets_cidr   = ["10.0.0.0/24", "10.0.1.0/24"] //List of Public subnet cidr range
+private_subnets_cidr  = ["10.0.10.0/24", "10.0.11.0/24"] //List of private subnet cidr range
+db_subnets_cidr       = ["10.0.20.0/24", "10.0.21.0/24"] //List of private subnet cidr range
+```
 2. Provide executable permissions to the env-creation.sh 
 ```chmod +x env-creation.sh```
+
+Provide required details by the script and follow the steps mentioned in the script to run the environment build. You should provide AWS region, IAM user (has AWS admin permissions) keys (Access key and secret key), new S3 bucket name, AWS Account ID (number) and IAM username.
+
 3. Run following command. 
 ```./env-creation.sh```
 
-4. Provide required details by the script and follow the steps mentioned in the script to run the environment build. 
-
-1. Setup variables like project name, region name, availability zones, CIDR etc  correctly in terraform.tfvars file.
-2. Setup your terraform credential using 
-```
-$ export AWS_ACCESS_KEY_ID="<YOUR_KEY_ID>"
-$ export AWS_SECRET_ACCESS_KEY="<YOUR_SECRET>"
-```
-3. Run Terraform using 
-```
-terraform init
-terraform apply
-```
 4. Please use env-deletion.sh to destroy the created resource. Please provide executable permission to env-deletion.sh before run the script.
 ```chmod +x env-deletion.sh```
 ```./env-deletion.sh```
@@ -88,6 +121,8 @@ This Terraform script creates below resources,
 After succesful execution of the script, you will be getting ALB DNS endpoint as an output. Please use the output DNS entry to access the web appliaction using a browser. 
 
 ```Ex: alb_endpoint = "testapp-dev-alb-101191681.us-east-1.elb.amazonaws.com"```
+
+![Blank diagram](https://github.com/isuru-yasantha/assignment/blob/663cb1b24bf99e855eda332eb4563447b680793b/images/app.png)
 
 ## Improvements
 

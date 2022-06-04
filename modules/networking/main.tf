@@ -27,13 +27,7 @@ resource "aws_eip" "nat_eip" {
   depends_on = [aws_internet_gateway.ig]
 }
 
-/*
-resource "aws_eip" "nat_eip2" {
-  vpc        = true
-  depends_on = [aws_internet_gateway.ig]
-}*/
-
-/* NAT */
+/* NAT GWS */
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat_eip.*.id[count.index]
   count = length(var.public_subnets_cidr)
@@ -46,7 +40,7 @@ resource "aws_nat_gateway" "nat" {
   }
 }
 
-/* Public subnet */
+/* Public subnets */
 resource "aws_subnet" "public_subnet" {
   vpc_id                  = aws_vpc.vpc.id
   count                   = length(var.public_subnets_cidr)
@@ -60,7 +54,7 @@ resource "aws_subnet" "public_subnet" {
   }
 }
 
-/* Private subnet */
+/* Private subnets */
 resource "aws_subnet" "private_subnet" {
   vpc_id                  = aws_vpc.vpc.id
   count                   = length(var.private_subnets_cidr)
@@ -74,7 +68,7 @@ resource "aws_subnet" "private_subnet" {
   }
 }
 
-/* DB subnet */
+/* DB subnets */
 resource "aws_subnet" "db_subnet" {
   vpc_id                  = aws_vpc.vpc.id
   count                   = length(var.db_subnets_cidr)
@@ -107,12 +101,14 @@ resource "aws_route_table" "public" {
   }
 }
 
+/* Internet route for public RT */
 resource "aws_route" "public_internet_gateway" {
   route_table_id         = aws_route_table.public.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.ig.id
 }
 
+/* Internet route for private RT */
 resource "aws_route" "private_nat_gateway" {
   count = length(var.private_subnets_cidr)
   route_table_id         = aws_route_table.private.*.id[count.index]
@@ -142,6 +138,8 @@ resource "aws_route_table_association" "private-db-rta" {
 
 /*==== Security Groups ======*/
 
+/* ALB SG */
+
 resource "aws_security_group" "alb-sg" {
   name        = "${var.project}-alb-sg"
   description = "Security group for ALB"
@@ -170,6 +168,7 @@ resource "aws_security_group" "alb-sg" {
   }
 }
 
+/* RDS SG */
 
 resource "aws_security_group" "rds-sg" {
   name        = "${var.project}-rds-sg"
@@ -198,6 +197,7 @@ resource "aws_security_group" "rds-sg" {
   }
 }
 
+/* ECS Service SG */
 resource "aws_security_group" "service-sg" {
   name        = "${var.project}-service-sg"
   description = "Security group for Service"
@@ -222,6 +222,8 @@ resource "aws_security_group" "service-sg" {
     Environment = "${var.environment}"
   }
 }
+
+/* RDS DB subnet group */
 
 resource "aws_db_subnet_group" "rds_db_subnetgroup" {
   name       = "rds-db-subnet-group"

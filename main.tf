@@ -1,9 +1,9 @@
 terraform {
 
    backend "s3" {
-    bucket = "testappbucket2022"
+    bucket = "bucketVariable"
     key = "tfstate/terraform.tfstate"
-    region = "us-east-1"
+    region = "regionVariable"
 }
 
 }
@@ -11,6 +11,8 @@ terraform {
 provider "aws" {
   region = var.region
 }
+
+/* Networking Module */
 
 module "networking" {
   source = "./modules/networking"
@@ -25,6 +27,8 @@ module "networking" {
   db_subnets_cidr      = var.db_subnets_cidr
 }
 
+/* IAM Module */
+
 module "iam" {
   source = "./modules/iam"
   depends_on           = [module.secretmanager]
@@ -32,6 +36,8 @@ module "iam" {
   environment          = var.environment
   secretmanager-id     = module.secretmanager.secretmanager-id
 }
+
+/* RDS Module */
 
 module "rds" {
   source = "./modules/rds"
@@ -46,6 +52,8 @@ module "rds" {
   rds_sg_id            = module.networking.rds_sg_id
   rds_db_subnetgroup_name = module.networking.rds_db_subnetgroup_name
 }
+
+/* Compute Module */
 
 module "compute" {
   source = "./modules/compute"
@@ -62,6 +70,8 @@ module "compute" {
   secretmanager-id     = module.secretmanager.secretmanager-id
 }
 
+/* LB Module */
+
 module "alb" {
   source = "./modules/alb"
   depends_on = [module.networking]
@@ -71,6 +81,8 @@ module "alb" {
   public_subnets_id    = module.networking.public_subnets_id
   alb_sg_id            = module.networking.alb_sg_id
 }
+
+/* Secret Manager Module */
 
 module "secretmanager" {
   source = "./modules/secretmanager"
