@@ -36,8 +36,38 @@ Please use below mentioned steps to deploy cloud infrasture to deploy this solut
 ### Prerequisites
 
 1. Terraform (Tested version for this solution - Terraform v1.0.11)
-2. AWS IAM user keys with AWS Admin permission.
-3. AWS S3 bucket with below access policy to grant access to above mentioned IAM user.
+2. AWS IAM user (X) keys with AWS Admin permission.
+3. AWS S3 bucket with below access policy to grant access to above mentioned IAM user(X) and directory tfstate. (Ex:S3bucket/tfstate)
+```
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "Statement1",
+			"Effect": "Allow",
+			 "Principal": {
+                "AWS": [
+                    "arn:aws:iam::ACCOUNT_ID:user/x"
+                ]},
+			"Action": "s3:ListBucket",
+			"Resource": "arn:aws:s3:::BUCKET_NAME"
+		},
+		{
+			"Effect": "Allow",
+			 "Principal": {
+                "AWS": [
+                   "arn:aws:iam::ACCOUNT_ID:user/x"
+                ]},
+			"Action": [
+				"s3:GetObject",
+				"s3:PutObject",
+				"s3:DeleteObject"
+			],
+			"Resource": "arn:aws:s3:::BUCKET_NAME/tfstate/terraform.tfstate"
+		}
+	]
+}
+```
 4. Web Brower (Tested with Google Chrome)
 
 ### Steps to run
