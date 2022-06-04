@@ -48,10 +48,6 @@ resource "aws_ecs_task_definition" "aws-ecs-task" {
     "value": "0.0.0.0" 
 },
 {
-    "name": "ECS_CONTAINER_STOP_TIMEOUT"
-    "value": "10m"
-},
-{
     "name": "VTT_LISTENPORT",
     "value": "3000" 
 }
