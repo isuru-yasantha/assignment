@@ -122,6 +122,8 @@ After succesful execution of the script, you will be getting ALB DNS endpoint as
 
 ```Ex: alb_endpoint = "testapp-dev-alb-101191681.us-east-1.elb.amazonaws.com"```
 
+![Blank diagram](https://github.com/isuru-yasantha/assignment/blob/663cb1b24bf99e855eda332eb4563447b680793b/images/app.png)
+
 ## Improvements
 
  - Security enhancements -
