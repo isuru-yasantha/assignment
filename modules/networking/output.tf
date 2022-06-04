@@ -1,3 +1,5 @@
+/* Output values from networking module */
+
 output "vpc_id" {
   value = "${aws_vpc.vpc.id}"
 }
