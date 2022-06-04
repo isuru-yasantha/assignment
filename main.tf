@@ -55,10 +55,10 @@ module "compute" {
   region               = var.region
   imageurl             = var.imageurl
   ecstaskexecution_iam_role_arn = module.iam.ecstaskexecution_iam_role_arn
-  service_sg_id     = module.networking.service_sg_id
-  private_subnets_id = module.networking.private_subnets_id
-  target_group_arn = module.alb.target_group_arn
-  rds-endpoint =  module.rds.rds-endpoint
+  service_sg_id        = module.networking.service_sg_id
+  private_subnets_id   = module.networking.private_subnets_id
+  target_group_arn     = module.alb.target_group_arn
+  rds-endpoint         =  module.rds.rds-endpoint
   secretmanager-id     = module.secretmanager.secretmanager-id
 }
 

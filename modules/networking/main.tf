@@ -172,33 +172,6 @@ resource "aws_route_table_association" "private-db-2" {
 
 /*==== Security Groups ======*/
 
-resource "aws_security_group" "ecs-sg" {
-  name        = "${var.project}-ecs-sg"
-  description = "Security group for ecs cluster"
-  vpc_id      = aws_vpc.vpc.id
-  depends_on  = [aws_vpc.vpc,aws_security_group.alb-sg]
-
-  ingress {
-      from_port   = 3000
-      to_port     = 3000
-      protocol    = "TCP"
-      description = "allow http traffic from the ALB"
-      security_groups = ["${aws_security_group.alb-sg.id}"]
-    }
-
-  egress {
-    from_port        = "0"
-    to_port          = "0"
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-  
-   tags = {
-    Environment = "${var.environment}"
-  }
-}
-
 resource "aws_security_group" "alb-sg" {
   name        = "${var.project}-alb-sg"
   description = "Security group for ALB"
@@ -232,7 +205,7 @@ resource "aws_security_group" "rds-sg" {
   name        = "${var.project}-rds-sg"
   description = "Security group for RDS"
   vpc_id      = aws_vpc.vpc.id
-  depends_on  = [aws_vpc.vpc,aws_security_group.ecs-sg,aws_vpc.vpc,aws_security_group.service-sg]
+  depends_on  = [aws_vpc.vpc,aws_security_group.service-sg]
 
   ingress {
      
@@ -240,7 +213,7 @@ resource "aws_security_group" "rds-sg" {
       to_port     = 5432 
       protocol    = "tcp"
       description = "allow db connections from ecs sg"
-      security_groups = ["${aws_security_group.ecs-sg.id}","${aws_security_group.service-sg.id}"]
+      security_groups = ["${aws_security_group.service-sg.id}"]
     }
   egress {
     from_port        = "0"
