@@ -150,7 +150,7 @@ After succesful execution of the script, you will be getting ALB DNS endpoint as
 
 Diagram describes the CI/CD process for this application that can be implemented using AWS services.
 
-![Blank diagram](https://github.com/isuru-yasantha/assignment/blob/74d60ce06612cd299d665b6dae48d24100525b35/images/cicdProcess.jpg)
+![Blank diagram](https://github.com/isuru-yasantha/assignment/blob/0c27510c590b8e6d20106981c5d16e9729daf57a/images/cicdProcess.jpg)
 
 ### Monitoring, Logging and Alerts
 
