@@ -20,35 +20,28 @@ resource "aws_internet_gateway" "ig" {
   }
 }
 
-/* Elastic IP for NAT */
-resource "aws_eip" "nat_eip1" {
+/* Elastic IPs for NAT */
+resource "aws_eip" "nat_eip" {
   vpc        = true
+  count = 2
   depends_on = [aws_internet_gateway.ig]
 }
 
+/*
 resource "aws_eip" "nat_eip2" {
   vpc        = true
   depends_on = [aws_internet_gateway.ig]
-}
+}*/
 
 /* NAT */
-resource "aws_nat_gateway" "nat1" {
-  allocation_id = aws_eip.nat_eip1.id
-  subnet_id     = element(aws_subnet.public_subnet.*.id, 0)
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat_eip.*.id[count.index]
+  count = length(var.public_subnets_cidr)
+  subnet_id     = aws_subnet.public_subnet.*.id[count.index]
   depends_on    = [aws_internet_gateway.ig]
 
   tags = {
-    Name        = "${var.project}-nat1"
-    Environment = "${var.environment}"
-  }
-}
-
-  resource "aws_nat_gateway" "nat2" {
-  allocation_id = aws_eip.nat_eip2.id
-  subnet_id     = element(aws_subnet.public_subnet.*.id, 1)
-  depends_on    = [aws_internet_gateway.ig]
-    tags = {
-    Name        = "${var.project}-nat2"
+    Name        = "${var.project}-natgw-${count.index}"
     Environment = "${var.environment}"
   }
 }
@@ -95,22 +88,12 @@ resource "aws_subnet" "db_subnet" {
   }
 }
 
-/* Routing table for private subnet-1 */
-resource "aws_route_table" "private-1" {
+/* Routing table for private subnets */
+resource "aws_route_table" "private" {
   vpc_id = aws_vpc.vpc.id
-
+  count = length(var.private_subnets_cidr)
   tags = {
-    Name        = "${var.project}-private-1-route-table"
-    Environment = "${var.environment}"
-  }
-}
-
-/* Routing table for private subnet-2 */
-resource "aws_route_table" "private-2" {
-  vpc_id = aws_vpc.vpc.id
-
-  tags = {
-    Name        = "${var.project}-private-2-route-table"
+    Name        = "${var.project}-private-route-table-${count.index}"
     Environment = "${var.environment}"
   }
 }
@@ -118,7 +101,6 @@ resource "aws_route_table" "private-2" {
 /* Routing table for public subnet */
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.vpc.id
-
   tags = {
     Name        = "${var.project}-public-route-table"
     Environment = "${var.environment}"
@@ -131,16 +113,12 @@ resource "aws_route" "public_internet_gateway" {
   gateway_id             = aws_internet_gateway.ig.id
 }
 
-resource "aws_route" "private_nat_gateway-1" {
-  route_table_id         = aws_route_table.private-1.id
+resource "aws_route" "private_nat_gateway" {
+  count = length(var.private_subnets_cidr)
+  route_table_id         = aws_route_table.private.*.id[count.index]
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.nat1.id
-}
-
-resource "aws_route" "private_nat_gateway-2" {
-  route_table_id         = aws_route_table.private-2.id
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.nat2.id
+  nat_gateway_id         = aws_nat_gateway.nat.*.id[count.index]
+  depends_on    = [aws_nat_gateway.nat]
 }
 
 /* Route table associations */
@@ -150,24 +128,16 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-resource "aws_route_table_association" "private-1" {
-  subnet_id      = element(aws_subnet.private_subnet.*.id, 0)
-  route_table_id = aws_route_table.private-1.id
+resource "aws_route_table_association" "private-rta" {
+  count              = length(var.private_subnets_cidr)
+  subnet_id      = aws_subnet.private_subnet.*.id[count.index]
+  route_table_id = aws_route_table.private.*.id[count.index]
 }
 
-resource "aws_route_table_association" "private-2" {
-  subnet_id      = element(aws_subnet.private_subnet.*.id, 1)
-  route_table_id = aws_route_table.private-2.id
-}
-
-resource "aws_route_table_association" "private-db-1" {
-  subnet_id      = element(aws_subnet.db_subnet.*.id, 0)
-  route_table_id = aws_route_table.private-1.id
-}
-
-resource "aws_route_table_association" "private-db-2" {
-  subnet_id      = element(aws_subnet.db_subnet.*.id, 1)
-  route_table_id = aws_route_table.private-2.id
+resource "aws_route_table_association" "private-db-rta" {
+  count              = length(var.db_subnets_cidr)
+  subnet_id      = aws_subnet.db_subnet.*.id[count.index]
+  route_table_id = aws_route_table.private.*.id[count.index]
 }
 
 /*==== Security Groups ======*/
@@ -255,7 +225,7 @@ resource "aws_security_group" "service-sg" {
 
 resource "aws_db_subnet_group" "rds_db_subnetgroup" {
   name       = "rds-db-subnet-group"
-  subnet_ids = [aws_subnet.db_subnet.0.id,aws_subnet.db_subnet.1.id]
+  subnet_ids = aws_subnet.db_subnet.*.id
   depends_on = [aws_subnet.db_subnet]
    tags = {
     Environment = "${var.environment}"

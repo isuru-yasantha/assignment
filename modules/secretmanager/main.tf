@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "secretmanagerDB" {
-  name = "${var.project}-${var.environment}-kbssecretmanager"
+  name = "${var.project}-${var.environment}-kdnewsecretmanager"
 }
 
 resource "aws_secretsmanager_secret_version" "secretversion" {

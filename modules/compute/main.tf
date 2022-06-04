@@ -167,7 +167,7 @@ resource "aws_ecs_service" "aws-ecs-service" {
   deployment_maximum_percent         = 200
   force_new_deployment = true
   network_configuration {
-    subnets          = [element(var.private_subnets_id,0), element(var.private_subnets_id,1)]
+    subnets          = var.private_subnets_id
     assign_public_ip = false
     security_groups = ["${var.service_sg_id}"]
   }
