@@ -2,21 +2,21 @@
 
 ## Solution design and deployment diagram
 
-![Blank diagram](https://user-images.githubusercontent.com/2060769/117240934-8f043880-ae4f-11eb-8b08-de0472bb130f.jpeg)
+![Blank diagram](https://github.com/isuru-yasantha/assignment/blob/74d60ce06612cd299d665b6dae48d24100525b35/images/DeploymentDiagram.jpg)
 
 ## Tools and services 
 
 - Terraform 
 - GitHub
 - AWS
- - AWS VPC
- - AWS ECS
- - AWS EC2 (ALB)
- - AWS S3
- - AWS IAM
- - AWS Secret Manager
- - AWS RDS
- - AWS CloudWatch
+-- AWS VPC
+-- AWS ECS
+-- AWS EC2 (ALB)
+-- AWS S3
+-- AWS IAM
+-- AWS Secret Manager
+-- AWS RDS
+-- AWS CloudWatch
 
  Above mentioned AWS services are selected to design and deploy this application considering complexity to design, implement and operational overhead. Basic security is implemented for this solution at this stage. However, there are things that we can implement for enhance security, performance and cost saving aspects which discuss under improvement section.
 
