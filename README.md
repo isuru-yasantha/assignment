@@ -123,14 +123,14 @@ After succesful execution of the script, you will be getting ALB DNS endpoint as
 
     Creating separate DB user and grant access only particular DB for that user in order to connect to the DB from the application
 
-- Performance enhancements - 
+- Performance enhancements  
 
     - Implementing a CDN to provide webapplication to the endusers
     - Implementing cloudwatch based alarms related to the scaling activities in ECS, error code based alarms for ALB, target group based alarms for unhealthy targets, RDS based alarms for critical metrics such as cpu,memory and storage
     - Implementing 3rd party health check or uptime monitor for the website
     - Implementing ECR for managing internal docker images
 
-- Backups - 
+- Backups  
 
     Enabling backups for AWS RDS, lifecycle policy for AWS S3 storage, log retention policy for AWS Cloudwatch logs
     Implementing remote managing of TF state using Dynamo DB based solution
@@ -139,7 +139,7 @@ After succesful execution of the script, you will be getting ALB DNS endpoint as
 - Cost savings
     Analyze the traffic patterns and resource utilisation metrics to come up with a better resource sizes. 
 
-- Other -
+- Other 
 
    Runing AWS trusted advisor to get recommendations related to cost,performance and security to achive best from those aspects and implement them after analyzing the AWS recommendations according to the application requirements. 
 
@@ -148,16 +148,9 @@ After succesful execution of the script, you will be getting ALB DNS endpoint as
 
 ### CI/CD Pipeline
 
-- Stratergy - diagram
-- tools and tech
-- build failures and deployment failures 
-- testing part of build
-- CI and CD parts (CI -> getting base image from ECR)
-- Roll back configurations based on alarms/deployment failures
-- enable SNS topic based event alerts regarding the deployment process (fail,stop,rollback and done)
-- 20% for 15min (based on requirement)
-- use code pipeline for integrate both CB and CD parts
-- code pipeline configure with github web hook to start the pipeline with source repo and branch
+Diagram describes the CI/CD process for this application that can be implemented using AWS services.
+
+![Blank diagram](https://github.com/isuru-yasantha/assignment/blob/74d60ce06612cd299d665b6dae48d24100525b35/images/cicdProcess.jpg)
 
 ### Monitoring, Logging and Alerts
 
